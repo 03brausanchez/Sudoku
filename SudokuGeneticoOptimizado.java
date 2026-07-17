@@ -1,11 +1,5 @@
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 import java.util.Random;
-import java.util.Scanner;
 
 /**
  * Resolución de Sudoku mediante un algoritmo genético optimizado.
@@ -78,14 +72,14 @@ public class SudokuGeneticoOptimizado {
             // Guía aproximada del documento: fácil 31, medio 24, difícil 17.
             if (clues >= 31) {
                 return new Configuration(
-                        120, // población
+                        120,   // población
                         1_000, // generaciones máximas
-                        8, // élites
-                        4, // torneo
-                        35, // pasos de mejora local por individuo
-                        60, // generaciones sin mejora antes de reiniciar
-                        0.55, // probabilidad de mutación
-                        0.50, // fracción reiniciada
+                        8,     // élites
+                        4,     // torneo
+                        35,    // pasos de mejora local por individuo
+                        60,    // generaciones sin mejora antes de reiniciar
+                        0.55,  // probabilidad de mutación
+                        0.50,  // fracción reiniciada
                         "FÁCIL");
             }
 
@@ -197,7 +191,9 @@ public class SudokuGeneticoOptimizado {
             return new Result(toBoard(globalBest.genes), 0, globalBest.fitness);
         }
 
-        for (int generation = 1; generation <= configuration.maxGenerations; generation++) {
+        for (int generation = 1;
+             generation <= configuration.maxGenerations;
+             generation++) {
 
             Individual[] nextGeneration = new Individual[configuration.populationSize];
 
@@ -206,7 +202,9 @@ public class SudokuGeneticoOptimizado {
                 nextGeneration[i] = population[i].copy();
             }
 
-            for (int i = configuration.eliteCount; i < nextGeneration.length; i++) {
+            for (int i = configuration.eliteCount;
+                 i < nextGeneration.length;
+                 i++) {
 
                 Individual parentA = tournamentSelect(population);
                 Individual parentB = tournamentSelect(population);
@@ -384,7 +382,7 @@ public class SudokuGeneticoOptimizado {
      * 2. Prueba intercambios con otras celdas mutables de la misma caja.
      * 3. Prefiere el intercambio que más aumenta la aptitud.
      * 4. Permite ocasionalmente movimientos neutros o aleatorios para escapar
-     * de óptimos locales.
+     *    de óptimos locales.
      */
     private int improveByConflicts(
             int[] genes,
@@ -393,7 +391,9 @@ public class SudokuGeneticoOptimizado {
 
         int staleSteps = 0;
 
-        for (int step = 0; step < maximumSteps && currentFitness < PERFECT_FITNESS; step++) {
+        for (int step = 0;
+             step < maximumSteps && currentFitness < PERFECT_FITNESS;
+             step++) {
 
             int maximumConflict = -1;
             int candidateCount = 0;
@@ -417,7 +417,8 @@ public class SudokuGeneticoOptimizado {
                 break;
             }
 
-            int firstIndex = candidateCells[random.nextInt(candidateCount)];
+            int firstIndex = candidateCells[
+                    random.nextInt(candidateCount)];
 
             int row = firstIndex / SIZE;
             int col = firstIndex % SIZE;
@@ -457,7 +458,8 @@ public class SudokuGeneticoOptimizado {
 
             int secondIndex = bestPartners[random.nextInt(bestCount)];
 
-            boolean accept = bestDelta > 0
+            boolean accept =
+                    bestDelta > 0
                     || (bestDelta == 0 && random.nextDouble() < 0.25)
                     || random.nextDouble() < 0.025;
 
@@ -489,7 +491,8 @@ public class SudokuGeneticoOptimizado {
         Individual best = population[random.nextInt(population.length)];
 
         for (int i = 1; i < configuration.tournamentSize; i++) {
-            Individual candidate = population[random.nextInt(population.length)];
+            Individual candidate = population[
+                    random.nextInt(population.length)];
 
             if (candidate.fitness > best.fitness) {
                 best = candidate;
@@ -511,7 +514,7 @@ public class SudokuGeneticoOptimizado {
                 configuration.eliteCount,
                 (int) Math.round(
                         population.length
-                                * (1.0 - configuration.restartFraction)));
+                        * (1.0 - configuration.restartFraction)));
 
         for (int i = startIndex; i < population.length; i++) {
             int[] genes = createRandomIndividual();
@@ -698,38 +701,6 @@ public class SudokuGeneticoOptimizado {
         return copy;
     }
 
-    /**
-     * Lee exactamente 81 enteros.
-     */
-    public static int[][] readPuzzleFromFile(Path path) throws IOException {
-        List<Integer> values = new ArrayList<>();
-
-        try (Scanner scanner = new Scanner(path)) {
-            while (scanner.hasNext()) {
-                if (scanner.hasNextInt()) {
-                    values.add(scanner.nextInt());
-                } else {
-                    scanner.next();
-                }
-            }
-        }
-
-        if (values.size() != SIZE * SIZE) {
-            throw new IllegalArgumentException(
-                    "El archivo debe contener exactamente 81 enteros; "
-                            + "se encontraron " + values.size() + ".");
-        }
-
-        int[][] board = new int[SIZE][SIZE];
-
-        for (int i = 0; i < values.size(); i++) {
-            board[i / SIZE][i % SIZE] = values.get(i);
-        }
-
-        validateInitialPuzzle(board);
-        return board;
-    }
-
     private static void validateInitialPuzzle(int[][] board) {
         if (board == null || board.length != SIZE) {
             throw new IllegalArgumentException(
@@ -748,8 +719,8 @@ public class SudokuGeneticoOptimizado {
                 if (value < 0 || value > 9) {
                     throw new IllegalArgumentException(
                             "Valor inválido en fila " + (row + 1)
-                                    + ", columna " + (col + 1)
-                                    + ": " + value + ".");
+                            + ", columna " + (col + 1)
+                            + ": " + value + ".");
                 }
             }
         }
@@ -763,7 +734,7 @@ public class SudokuGeneticoOptimizado {
                 if (value != 0 && seen[value]) {
                     throw new IllegalArgumentException(
                             "La fila " + (row + 1)
-                                    + " contiene la pista repetida " + value + ".");
+                            + " contiene la pista repetida " + value + ".");
                 }
 
                 if (value != 0) {
@@ -781,7 +752,7 @@ public class SudokuGeneticoOptimizado {
                 if (value != 0 && seen[value]) {
                     throw new IllegalArgumentException(
                             "La columna " + (col + 1)
-                                    + " contiene la pista repetida " + value + ".");
+                            + " contiene la pista repetida " + value + ".");
                 }
 
                 if (value != 0) {
@@ -790,22 +761,30 @@ public class SudokuGeneticoOptimizado {
             }
         }
 
-        for (int boxRow = 0; boxRow < SIZE; boxRow += BOX_SIZE) {
+        for (int boxRow = 0;
+             boxRow < SIZE;
+             boxRow += BOX_SIZE) {
 
-            for (int boxCol = 0; boxCol < SIZE; boxCol += BOX_SIZE) {
+            for (int boxCol = 0;
+                 boxCol < SIZE;
+                 boxCol += BOX_SIZE) {
 
                 boolean[] seen = new boolean[SIZE + 1];
 
-                for (int row = boxRow; row < boxRow + BOX_SIZE; row++) {
+                for (int row = boxRow;
+                     row < boxRow + BOX_SIZE;
+                     row++) {
 
-                    for (int col = boxCol; col < boxCol + BOX_SIZE; col++) {
+                    for (int col = boxCol;
+                         col < boxCol + BOX_SIZE;
+                         col++) {
 
                         int value = board[row][col];
 
                         if (value != 0 && seen[value]) {
                             throw new IllegalArgumentException(
                                     "Una caja 3x3 contiene la pista "
-                                            + "repetida " + value + ".");
+                                    + "repetida " + value + ".");
                         }
 
                         if (value != 0) {
@@ -817,85 +796,11 @@ public class SudokuGeneticoOptimizado {
         }
     }
 
-    private static void printBoard(int[][] board) {
-        for (int row = 0; row < SIZE; row++) {
-            if (row > 0 && row % BOX_SIZE == 0) {
-                System.out.println("------+-------+------");
-            }
-
-            for (int col = 0; col < SIZE; col++) {
-                if (col > 0 && col % BOX_SIZE == 0) {
-                    System.out.print("| ");
-                }
-
-                System.out.print(board[row][col] + " ");
-            }
-
-            System.out.println();
-        }
-    }
-
     public int getClueCount() {
         return clueCount;
     }
 
     public String getDetectedLevel() {
         return configuration.level;
-    }
-
-    public static void main(String[] args) {
-        Path file = Path.of(
-                "/home/braulio/Documentos/Proyecto_ADA/Casos/Dificil.txt");
-
-        long seed = 42;
-
-        try {
-            int[][] puzzle = readPuzzleFromFile(file);
-
-            SudokuGeneticoOptimizado solver = new SudokuGeneticoOptimizado(puzzle, seed);
-
-            System.out.println("Archivo: " + file.toAbsolutePath());
-            System.out.println("Pistas: " + solver.getClueCount());
-            System.out.println(
-                    "Nivel detectado: " + solver.getDetectedLevel());
-            System.out.println("Semilla: " + seed);
-
-            long startTime = System.nanoTime();
-
-            Result result = solver.solve();
-
-            long elapsedTime = System.nanoTime() - startTime;
-
-            if (result == null) {
-                System.out.println(
-                        "No se encontró una solución completa dentro "
-                                + "del límite configurado.");
-            } else {
-                System.out.println(
-                        "\nSolución encontrada en la generación: "
-                                + result.getGeneration());
-
-                System.out.println(
-                        "Aptitud: " + result.getFitness());
-
-                System.out.println("\nSudoku final:");
-                printBoard(result.getBoard());
-            }
-
-            System.out.printf(
-                    Locale.US,
-                    "\nTiempo de ejecución: %.3f ms%n",
-                    elapsedTime / 1_000_000.0);
-
-        } catch (IOException exception) {
-            System.err.println(
-                    "No se pudo leer el archivo: "
-                            + exception.getMessage());
-
-        } catch (IllegalArgumentException exception) {
-            System.err.println(
-                    "Entrada inválida: "
-                            + exception.getMessage());
-        }
     }
 }
